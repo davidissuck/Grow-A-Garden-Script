@@ -3,7 +3,7 @@ Designed for this game: https://www.roblox.com/games/126884695634066/Grow-a-Gard
 
 ## Loadstring
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/davidissuck/GaG/refs/heads/main/GAGHub"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/davidissuck/GrowAGardenOpScript/refs/heads/main/OpScript"))()
 ```
 
 ---
