@@ -1,4 +1,5 @@
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "PantallaCarga"
@@ -43,7 +44,7 @@ barra.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
 barra.BorderSizePixel = 0
 barra.Parent = barraMarco
 
--- Texto porcentaje dentro de la barra
+-- Texto porcentaje dentro de la barra (color blanco para contraste)
 local porcentajeTexto = Instance.new("TextLabel")
 porcentajeTexto.Size = UDim2.new(1, 0, 1, 0)
 porcentajeTexto.BackgroundTransparency = 1
@@ -51,7 +52,49 @@ porcentajeTexto.TextColor3 = Color3.new(1, 1, 1)
 porcentajeTexto.Font = Enum.Font.GothamBold
 porcentajeTexto.TextScaled = true
 porcentajeTexto.Text = "0%"
-porcentajeTexto.Parent = barraMarco
+porcentajeTexto.Parent = barra
+
+-- Contenedor para hongos interactivos
+local hongosContainer = Instance.new("Frame")
+hongosContainer.Size = UDim2.new(0.6, 0, 0.15, 0)
+hongosContainer.Position = UDim2.new(0.2, 0, 0.55, 0) -- justo debajo de la barra
+hongosContainer.BackgroundTransparency = 1
+hongosContainer.Parent = fondo
+
+-- Función para crear un hongo interactivo
+local function crearHongo(position)
+	local hongo = Instance.new("ImageButton")
+	hongo.Size = UDim2.new(0, 50, 0, 50)
+	hongo.Position = position
+	hongo.BackgroundTransparency = 1
+	hongo.Image = "rbxassetid://10813318822" -- Imagen de un hongo rojo
+	hongo.Parent = hongosContainer
+	hongo.AutoButtonColor = true
+	
+	hongo.MouseButton1Click:Connect(function()
+		-- Al hacer clic: el hongo se "divide"
+		-- Animar el hongo actual a 0.5 escala y crear uno nuevo al lado
+		
+		local tweenOut = TweenService:Create(hongo, TweenInfo.new(0.3), {Size = UDim2.new(0, 25, 0, 25)})
+		tweenOut:Play()
+		
+		tweenOut.Completed:Wait()
+		
+		local tweenIn = TweenService:Create(hongo, TweenInfo.new(0.3), {Size = UDim2.new(0, 50, 0, 50)})
+		tweenIn:Play()
+		
+		-- Crear un nuevo hongo a la derecha, si no está fuera del container
+		local newPos = UDim2.new(hongo.Position.X.Scale + 0.1, hongo.Position.X.Offset, hongo.Position.Y.Scale, hongo.Position.Y.Offset)
+		if newPos.X.Scale + 0.08 <= 1 then
+			crearHongo(newPos)
+		end
+	end)
+end
+
+-- Crear tres hongos iniciales
+crearHongo(UDim2.new(0, 0, 0, 0))
+crearHongo(UDim2.new(0.15, 0, 0, 0))
+crearHongo(UDim2.new(0.3, 0, 0, 0))
 
 -- Simulación de carga 5 minutos (300 segundos) con velocidad variable
 local duracionTotal = 300
