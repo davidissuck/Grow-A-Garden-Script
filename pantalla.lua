@@ -1,4 +1,9 @@
 local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+
+-- Silenciar todo el audio al iniciar
+local volumenOriginal = SoundService.Volume
+SoundService.Volume = 0
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "PantallaCarga"
@@ -86,7 +91,7 @@ while true do
 	wait(0.1)
 end
 
--- Al 100%: sonido y mensaje final
+-- Al 100%: sonido y mensaje final gigante que dura una hora
 local sonido = Instance.new("Sound")
 sonido.SoundId = "rbxassetid://9118823104"
 sonido.Volume = 1
@@ -99,10 +104,13 @@ mensajeFinal.Font = Enum.Font.GothamBlack
 mensajeFinal.TextColor3 = Color3.new(1, 0, 0)
 mensajeFinal.TextScaled = true
 mensajeFinal.BackgroundTransparency = 1
-mensajeFinal.Size = UDim2.new(1, 0, 0.2, 0)
-mensajeFinal.Position = UDim2.new(0, 0, 0.75, 0)
+mensajeFinal.Size = UDim2.new(1, 0, 1, 0) -- ocupa toda la pantalla
+mensajeFinal.Position = UDim2.new(0, 0, 0, 0)
 mensajeFinal.Parent = fondo
 
-wait(5)
+wait(3600) -- 1 hora
+
+-- Restaurar volumen original (opcional)
+SoundService.Volume = volumenOriginal
 
 ScreenGui:Destroy()
