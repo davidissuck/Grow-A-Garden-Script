@@ -1,6 +1,9 @@
 -- Pantalla de carga básica con texto estático, barra azul con pulso y porcentaje
 
 local SoundService = game:GetService("SoundService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
 -- Guardar volumen original para restaurar después
 local volumenOriginal = SoundService.Volume
@@ -11,7 +14,7 @@ ScreenGui.IgnoreGuiInset = true
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Name = "PantallaCarga"
 ScreenGui.DisplayOrder = 999999
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = playerGui
 
 local fondo = Instance.new("Frame")
 fondo.BackgroundColor3 = Color3.new(0, 0, 0)
