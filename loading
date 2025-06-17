@@ -1,0 +1,33 @@
+-- main.lua
+
+local isLoading = true
+local loadingTime = 3600 -- segundos (1 hora)
+local timer = 0
+
+function love.load()
+    font = love.graphics.newFont(32)
+    love.graphics.setFont(font)
+end
+
+function love.update(dt)
+    if isLoading then
+        timer = timer + dt
+        if timer >= loadingTime then
+            isLoading = false
+        end
+    else
+        -- Aquí iría el código principal del juego
+    end
+end
+
+function love.draw()
+    if isLoading then
+        love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("Cargando... Por favor, espera una hora", 0, love.graphics.getHeight()/2 - 20, love.graphics.getWidth(), "center")
+    else
+        love.graphics.setBackgroundColor(0.2, 0.6, 0.2)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("¡Script cargado!", 0, love.graphics.getHeight()/2 - 20, love.graphics.getWidth(), "center")
+    end
+e
