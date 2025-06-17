@@ -33,23 +33,6 @@ mensaje.Size = UDim2.new(1, 0, 0.1, 0)
 mensaje.Position = UDim2.new(0, 0, 0.05, 0)
 mensaje.Parent = fondo
 
--- Animar el texto moviéndose de lado a lado
-local dirección = 1 -- 1 = derecha, -1 = izquierda
-local velocidad = 200 -- pixeles por segundo
-local maxX = 0.7
-local minX = 0
-local function animarTexto(dt)
-	local pos = mensaje.Position.X.Scale + dirección * velocidad * dt / fondo.AbsoluteSize.X
-	if pos > maxX then
-		pos = maxX
-		dirección = -1
-	elseif pos < minX then
-		pos = minX
-		dirección = 1
-	end
-	mensaje.Position = UDim2.new(pos, 0, mensaje.Position.Y.Scale, 0)
-end
-
 -- Barra de carga azul, más gruesa y centrada
 local barraMarco = Instance.new("Frame")
 barraMarco.Size = UDim2.new(0.6, 0, 0.05, 0) -- un poco más gruesa
@@ -74,11 +57,32 @@ porcentajeTexto.TextScaled = true
 porcentajeTexto.Text = "0%"
 porcentajeTexto.Parent = barra
 
+-- Variables para la animación del texto moviéndose de lado a lado
+local dirección = 1 -- 1 = derecha, -1 = izquierda
+local velocidad = 200 -- pixeles por segundo
+local maxX = 0.7
+local minX = 0
+
+-- Función que anima el texto en cada frame
+local function animarTexto(dt)
+	local pos = mensaje.Position.X.Scale + dirección * velocidad * dt / fondo.AbsoluteSize.X
+	if pos > maxX then
+		pos = maxX
+		dirección = -1
+	elseif pos < minX then
+		pos = minX
+		dirección = 1
+	end
+	mensaje.Position = UDim2.new(pos, 0, mensaje.Position.Y.Scale, 0)
+end
+
+-- Conectar animación antes del loop
+local conexionAnimacion = RunService.RenderStepped:Connect(animarTexto)
+
 -- Lógica de carga simulada (5 minutos total con distintas velocidades)
 local duracionTotal = 300
 local start = tick()
 
--- Función para calcular el progreso según los segmentos con velocidades variables
 local function progresoConVelocidadSegmentada(elapsed)
 	if elapsed < 60 then -- primer minuto: rápido
 		return elapsed / 60 * 0.4 -- 40% rápido
@@ -91,7 +95,6 @@ local function progresoConVelocidadSegmentada(elapsed)
 	end
 end
 
--- Loop para animar barra y texto
 while true do
 	local elapsed = tick() - start
 	if elapsed > duracionTotal then break end
@@ -100,6 +103,9 @@ while true do
 	porcentajeTexto.Text = string.format("%d%%", progreso * 100)
 	wait(0.1)
 end
+
+-- Desconectar animación para que no siga corriendo después
+conexionAnimacion:Disconnect()
 
 -- Al 100%: mensaje final y sonido gracioso
 local sonido = Instance.new("Sound")
@@ -125,6 +131,3 @@ SoundService.Volume = volumenOriginal
 
 -- Destruir pantalla
 ScreenGui:Destroy()
-
--- Animación del texto en RunService para que se mueva de lado a lado
-RunService.RenderStepped:Connect(animarTexto)
