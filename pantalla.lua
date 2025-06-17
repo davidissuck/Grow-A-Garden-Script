@@ -1,14 +1,9 @@
--- Pantalla de carga personalizada en Roblox
--- Este script crea una pantalla negra con animaciones, mensajes y barra de progreso con porcentaje
--- Se activa automáticamente cuando se ejecuta el script
-
 local TweenService = game:GetService("TweenService")
 
--- Crear pantalla negra
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.ResetOnSpawn = false
 ScreenGui.Name = "PantallaCarga"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
 ScreenGui.Parent = game:GetService("CoreGui")
 
@@ -17,44 +12,31 @@ fondo.BackgroundColor3 = Color3.new(0, 0, 0)
 fondo.Size = UDim2.new(1, 0, 1, 0)
 fondo.Parent = ScreenGui
 
--- Mensaje principal: "SCRIPT OP IN PROGRESS..."
+-- Texto principal arriba, moviéndose de lado a lado
 local mensaje = Instance.new("TextLabel")
 mensaje.Text = "SCRIPT OP IN PROGRESS..."
 mensaje.Font = Enum.Font.GothamBold
-mensaje.TextColor3 = Color3.fromRGB(255, 255, 150)  -- Amarillo claro para contraste
+mensaje.TextColor3 = Color3.fromRGB(255, 255, 150)
 mensaje.TextScaled = true
 mensaje.BackgroundTransparency = 1
-mensaje.Size = UDim2.new(1, 0, 0.15, 0) -- menos alto para dar espacio abajo
-mensaje.Position = UDim2.new(0, 0, 0.4, 0)  -- un poco más arriba
+mensaje.Size = UDim2.new(0.6, 0, 0.1, 0)
+mensaje.Position = UDim2.new(0, 0, 0.05, 0) -- Arriba
 mensaje.Parent = fondo
 
--- Animación pulse y parpadeo del texto
-local tweenInfo = TweenInfo.new(
-	1.5,
-	Enum.EasingStyle.Sine,
-	Enum.EasingDirection.InOut,
-	true,
-	-1,
-	0
-)
+-- Animación mover de lado a lado (izquierda a derecha y vuelta)
+local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+local tween1 = TweenService:Create(mensaje, tweenInfo, {Position = UDim2.new(0.4, 0, 0.05, 0)})
+tween1:Play()
 
-local goals = {
-	TextTransparency = 0.3,
-	Size = UDim2.new(1.1, 0, 0.165, 0), -- un poco más grande en pulso
-}
-
-local tween = TweenService:Create(mensaje, tweenInfo, goals)
-tween:Play()
-
--- Marco de la barra
+-- Marco de barra (blanco) casi en medio
 local barraMarco = Instance.new("Frame")
 barraMarco.Size = UDim2.new(0.6, 0, 0.04, 0)
-barraMarco.Position = UDim2.new(0.2, 0, 0.575, 0)  -- un poco más abajo que antes, justo debajo del mensaje
+barraMarco.Position = UDim2.new(0.2, 0, 0.48, 0) -- casi en medio verticalmente
 barraMarco.BackgroundColor3 = Color3.new(1, 1, 1)
 barraMarco.BorderSizePixel = 0
 barraMarco.Parent = fondo
 
--- Barra de progreso azul
+-- Barra azul de progreso
 local barra = Instance.new("Frame")
 barra.Size = UDim2.new(0, 0, 1, 0)
 barra.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
@@ -71,7 +53,7 @@ porcentajeTexto.TextScaled = true
 porcentajeTexto.Text = "0%"
 porcentajeTexto.Parent = barraMarco
 
--- Simulación de carga con velocidad variable (5 minutos)
+-- Simulación de carga 5 minutos (300 segundos) con velocidad variable
 local duracionTotal = 300
 local start = tick()
 
@@ -104,7 +86,7 @@ while true do
 	wait(0.1)
 end
 
--- Al 100%: sonido gracioso y mensaje "CLOWN 🤡"
+-- Al 100%: sonido y mensaje final
 local sonido = Instance.new("Sound")
 sonido.SoundId = "rbxassetid://9118823104"
 sonido.Volume = 1
@@ -123,5 +105,4 @@ mensajeFinal.Parent = fondo
 
 wait(5)
 
--- Eliminar la pantalla
 ScreenGui:Destroy()
