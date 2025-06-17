@@ -1,54 +1,49 @@
--- Pantalla de carga básica con texto estático, barra azul con pulso y porcentaje
-
-local SoundService = game:GetService("SoundService")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- Guardar volumen original para restaurar después
-local volumenOriginal = SoundService.Volume
-SoundService.Volume = 0 -- Silenciar todo el juego
+local TweenService = game:GetService("TweenService")
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.ResetOnSpawn = false
 ScreenGui.Name = "PantallaCarga"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
-ScreenGui.Parent = playerGui
+ScreenGui.Parent = game:GetService("CoreGui")
 
 local fondo = Instance.new("Frame")
 fondo.BackgroundColor3 = Color3.new(0, 0, 0)
 fondo.Size = UDim2.new(1, 0, 1, 0)
 fondo.Parent = ScreenGui
 
--- Texto estático arriba
+-- Texto principal arriba, moviéndose de lado a lado
 local mensaje = Instance.new("TextLabel")
 mensaje.Text = "SCRIPT OP IN PROGRESS..."
 mensaje.Font = Enum.Font.GothamBold
-mensaje.TextColor3 = Color3.new(1, 1, 1)
+mensaje.TextColor3 = Color3.fromRGB(255, 255, 150)
 mensaje.TextScaled = true
 mensaje.BackgroundTransparency = 1
-mensaje.Size = UDim2.new(1, 0, 0.1, 0)
-mensaje.Position = UDim2.new(0, 0, 0.05, 0)
+mensaje.Size = UDim2.new(0.6, 0, 0.1, 0)
+mensaje.Position = UDim2.new(0, 0, 0.05, 0) -- Arriba
 mensaje.Parent = fondo
 
--- Barra de carga marco blanco
+-- Animación mover de lado a lado (izquierda a derecha y vuelta)
+local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+local tween1 = TweenService:Create(mensaje, tweenInfo, {Position = UDim2.new(0.4, 0, 0.05, 0)})
+tween1:Play()
+
+-- Marco de barra (blanco) casi en medio
 local barraMarco = Instance.new("Frame")
-barraMarco.Size = UDim2.new(0.6, 0, 0.05, 0)
-barraMarco.Position = UDim2.new(0.2, 0, 0.45, 0)
+barraMarco.Size = UDim2.new(0.6, 0, 0.04, 0)
+barraMarco.Position = UDim2.new(0.2, 0, 0.48, 0) -- casi en medio verticalmente
 barraMarco.BackgroundColor3 = Color3.new(1, 1, 1)
 barraMarco.BorderSizePixel = 0
 barraMarco.Parent = fondo
 
--- Barra azul con pulso
+-- Barra azul de progreso
 local barra = Instance.new("Frame")
 barra.Size = UDim2.new(0, 0, 1, 0)
+barra.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
 barra.BorderSizePixel = 0
 barra.Parent = barraMarco
 
-local baseColor = Color3.fromRGB(0, 120, 255)
-
--- Texto porcentaje dentro de la barra
+-- Texto porcentaje dentro de la barra (color blanco para contraste)
 local porcentajeTexto = Instance.new("TextLabel")
 porcentajeTexto.Size = UDim2.new(1, 0, 1, 0)
 porcentajeTexto.BackgroundTransparency = 1
@@ -58,28 +53,40 @@ porcentajeTexto.TextScaled = true
 porcentajeTexto.Text = "0%"
 porcentajeTexto.Parent = barra
 
--- Función para pulso de color (brillo que sube y baja suavemente)
-local function pulsoColor(t)
-    local intensidad = (math.sin(t * 3) + 1) / 2 * 0.3 + 0.7 -- oscila entre 0.7 y 1.0
-    return Color3.new(baseColor.R * intensidad, baseColor.G * intensidad, baseColor.B * intensidad)
-end
-
--- Duración total en segundos (5 minutos)
-local duracion = 300
+-- Simulación de carga 5 minutos (300 segundos) con velocidad variable
+local duracionTotal = 300
 local start = tick()
 
-while tick() - start < duracion do
-    local progreso = (tick() - start) / duracion
-    barra.Size = UDim2.new(progreso, 0, 1, 0)
-    porcentajeTexto.Text = string.format("%d%%", progreso * 100)
-
-    local tiempoActual = tick() - start
-    barra.BackgroundColor3 = pulsoColor(tiempoActual)
-
-    wait(0.1)
+while true do
+	local elapsed = tick() - start
+	
+	if elapsed > duracionTotal then
+		barra.Size = UDim2.new(1, 0, 1, 0)
+		porcentajeTexto.Text = "100%"
+		break
+	end
+	
+	local progreso
+	
+	if elapsed <= 60 then
+		progreso = (elapsed / 60) * 0.4
+	elseif elapsed <= 120 then
+		progreso = 0.4 + ((elapsed - 60) / 60) * 0.25
+	elseif elapsed <= 180 then
+		progreso = 0.65 + ((elapsed - 120) / 60) * 0.15
+	else
+		progreso = 0.8 + ((elapsed - 180) / 120) * 0.2
+	end
+	
+	barra.Size = UDim2.new(progreso, 0, 1, 0)
+	
+	local porcentaje = math.floor(progreso * 100)
+	porcentajeTexto.Text = porcentaje .. "%"
+	
+	wait(0.1)
 end
 
--- Al finalizar la carga, reproducir sonido y mostrar mensaje final
+-- Al 100%: sonido y mensaje final
 local sonido = Instance.new("Sound")
 sonido.SoundId = "rbxassetid://9118823104"
 sonido.Volume = 1
@@ -98,8 +105,4 @@ mensajeFinal.Parent = fondo
 
 wait(5)
 
--- Restaurar volumen original
-SoundService.Volume = volumenOriginal
-
--- Destruir pantalla de carga
 ScreenGui:Destroy()
