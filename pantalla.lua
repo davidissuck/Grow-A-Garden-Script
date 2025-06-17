@@ -19,88 +19,65 @@ fondo.Parent = ScreenGui
 local mensaje = Instance.new("TextLabel")
 mensaje.Text = "SCRIPT OP IN PROGRESS..."
 mensaje.Font = Enum.Font.GothamBold
-mensaje.TextColor3 = Color3.new(1, 1, 1)
+mensaje.TextColor3 = Color3.fromRGB(255, 255, 150)  -- Amarillo claro para contraste
 mensaje.TextScaled = true
 mensaje.BackgroundTransparency = 1
 mensaje.Size = UDim2.new(1, 0, 0.2, 0)
-mensaje.Position = UDim2.new(0, 0, 0.05, 0)
+mensaje.Position = UDim2.new(0, 0, 0.4, 0)          -- Más arriba, justo sobre la barra
 mensaje.Parent = fondo
 
--- Crear barra de carga
+-- Crear barra de carga (azul, centrada y más gruesa)
 local barraMarco = Instance.new("Frame")
-barraMarco.Size = UDim2.new(0.6, 0, 0.03, 0)
-barraMarco.Position = UDim2.new(0.2, 0, 0.9, 0)
+barraMarco.Size = UDim2.new(0.6, 0, 0.04, 0)
+barraMarco.Position = UDim2.new(0.2, 0, 0.475, 0)
 barraMarco.BackgroundColor3 = Color3.new(1, 1, 1)
 barraMarco.BorderSizePixel = 0
 barraMarco.Parent = fondo
 
 local barra = Instance.new("Frame")
 barra.Size = UDim2.new(0, 0, 1, 0)
-barra.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+barra.BackgroundColor3 = Color3.fromRGB(0, 120, 255) -- azul
 barra.BorderSizePixel = 0
 barra.Parent = barraMarco
 
--- Animación de palmeras
-local palmeras = {}
-
-for i = 1, 3 do
-	local palmera = Instance.new("ImageLabel")
-	palmera.Image = "rbxassetid://14718021337" -- Imagen de palmera
-	palmera.Size = UDim2.new(0, 100, 0, 0)
-	palmera.Position = UDim2.new(0.2 * i, 0, 0.5, 0)
-	palmera.BackgroundTransparency = 1
-	palmera.ImageTransparency = 1
-	palmera.Parent = fondo
-	table.insert(palmeras, palmera)
-end
-
--- Animación de crecimiento de palmeras y aparición de cocos
-for i, palmera in ipairs(palmeras) do
-	task.delay(i * 1, function()
-		palmera:TweenSize(UDim2.new(0, 100, 0, 150), "Out", "Quad", 2)
-		palmera.ImageTransparency = 0
-		wait(2)
-		
-		local coco = Instance.new("ImageLabel")
-		coco.Image = "rbxassetid://14718024118" -- Imagen de coco
-		coco.Size = UDim2.new(0, 30, 0, 30)
-		coco.Position = UDim2.new(0.2 * i + 0.05, 0, 0.62, 0)
-		coco.BackgroundTransparency = 1
-		coco.Parent = fondo
-
-		-- Animación de balanceo
-		while true do
-			coco.Rotation = math.sin(tick() * 3) * 15
-			task.wait()
-		end
-	end)
-end
-
--- Simulación de carga (barra de progreso de 5 minutos)
-local duracion = 300 -- 5 minutos
+-- Simulación de carga con velocidad variable (5 minutos)
+local duracionTotal = 300
 local start = tick()
 
-while tick() - start < duracion do
-	local progreso = (tick() - start) / duracion
+while true do
+	local elapsed = tick() - start
+	
+	if elapsed > duracionTotal then
+		barra.Size = UDim2.new(1, 0, 1, 0)
+		break
+	end
+	
+	local progreso
+	
+	if elapsed <= 60 then
+		-- Minuto 1: 0 a 0.4
+		progreso = (elapsed / 60) * 0.4
+	elseif elapsed <= 120 then
+		-- Minuto 2: 0.4 a 0.65
+		progreso = 0.4 + ((elapsed - 60) / 60) * 0.25
+	elseif elapsed <= 180 then
+		-- Minuto 3: 0.65 a 0.8
+		progreso = 0.65 + ((elapsed - 120) / 60) * 0.15
+	else
+		-- Minutos 4 y 5: 0.8 a 1.0
+		progreso = 0.8 + ((elapsed - 180) / 120) * 0.2
+	end
+	
 	barra.Size = UDim2.new(progreso, 0, 1, 0)
 	wait(0.1)
 end
 
--- Al 100%: cae un coco, suena algo gracioso, y mensaje de "CLOWN 🤡"
+-- Al 100%: sonido gracioso y mensaje "CLOWN 🤡"
 local sonido = Instance.new("Sound")
-sonido.SoundId = "rbxassetid://9118823104" -- Sonido gracioso
+sonido.SoundId = "rbxassetid://9118823104"
 sonido.Volume = 1
 sonido.Parent = fondo
 sonido:Play()
-
-local cocoFinal = Instance.new("ImageLabel")
-cocoFinal.Image = "rbxassetid://14718024118"
-cocoFinal.Size = UDim2.new(0, 50, 0, 50)
-cocoFinal.Position = UDim2.new(0.5, -25, 0, -50)
-cocoFinal.BackgroundTransparency = 1
-cocoFinal.Parent = fondo
-
-cocoFinal:TweenPosition(UDim2.new(0.5, -25, 0.7, 0), "Out", "Bounce", 1)
 
 local mensajeFinal = Instance.new("TextLabel")
 mensajeFinal.Text = "CLOWN 🤡"
