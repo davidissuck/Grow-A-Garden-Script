@@ -2,6 +2,8 @@
 -- Este script crea una pantalla negra con animaciones, mensajes y barra de progreso visual
 -- Se activa automáticamente cuando se ejecuta el script
 
+local TweenService = game:GetService("TweenService")
+
 -- Crear pantalla negra
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.IgnoreGuiInset = true
@@ -23,8 +25,26 @@ mensaje.TextColor3 = Color3.fromRGB(255, 255, 150)  -- Amarillo claro para contr
 mensaje.TextScaled = true
 mensaje.BackgroundTransparency = 1
 mensaje.Size = UDim2.new(1, 0, 0.2, 0)
-mensaje.Position = UDim2.new(0, 0, 0.4, 0)          -- Más arriba, justo sobre la barra
+mensaje.Position = UDim2.new(0, 0, 0.42, 0)          -- Justo encima de la barra
 mensaje.Parent = fondo
+
+-- Animación pulse y parpadeo del texto
+local tweenInfo = TweenInfo.new(
+	1.5,              -- duración de cada ciclo
+	Enum.EasingStyle.Sine,
+	Enum.EasingDirection.InOut,
+	true,             -- reversa (y vuelve a la posición original)
+	-1,               -- repetir infinitamente
+	0
+)
+
+local goals = {
+	TextTransparency = 0.3,
+	Size = UDim2.new(1.1, 0, 0.22, 0),
+}
+
+local tween = TweenService:Create(mensaje, tweenInfo, goals)
+tween:Play()
 
 -- Crear barra de carga (azul, centrada y más gruesa)
 local barraMarco = Instance.new("Frame")
