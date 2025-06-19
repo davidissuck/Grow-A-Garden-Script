@@ -1,50 +1,61 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+local StarterGui = game:GetService("StarterGui")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- GUI Setup
+-- Disable core GUI and mute game
+StarterGui:SetCore("TopbarEnabled", false)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
+SoundService.Volume = 0
+
+-- Main UI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "LoadingUI"
 screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- Fondo visual llamativo
+-- Fullscreen animated glitch background
 local background = Instance.new("ImageLabel")
-background.Size = UDim2.new(1, 0, 1, 0)
+background.AnchorPoint = Vector2.new(0.5, 0.5)
+background.Position = UDim2.new(0.5, 0, 0.5, 0)
+background.Size = UDim2.new(1.5, 0, 1.5, 0)
 background.BackgroundTransparency = 1
-background.Image = "rbxassetid://13081265373" -- glitch cyberpunk image
+background.Image = "rbxassetid://13081265373"
 background.ImageTransparency = 0.1
+background.ScaleType = Enum.ScaleType.Crop
 background.ZIndex = 0
 background.Parent = screenGui
 
--- Texto LOADING... animado
-local loadingText = Instance.new("TextLabel")
-loadingText.Size = UDim2.new(1, 0, 0.1, 0)
-loadingText.Position = UDim2.new(0, 0, 0.1, 0)
-loadingText.BackgroundTransparency = 1
-loadingText.TextColor3 = Color3.fromRGB(0, 255, 0)
-loadingText.Font = Enum.Font.Code
-loadingText.TextScaled = true
-loadingText.Text = ""
-loadingText.ZIndex = 2
-loadingText.Parent = background
+-- Animated moving text
+local movingText = Instance.new("TextLabel")
+movingText.Text = "INITIALIZING SYSTEM..."
+movingText.Font = Enum.Font.Code
+movingText.TextColor3 = Color3.fromRGB(0, 255, 0)
+movingText.TextScaled = true
+movingText.BackgroundTransparency = 1
+movingText.Size = UDim2.new(0.4, 0, 0.08, 0)
+movingText.Position = UDim2.new(-0.4, 0, 0.15, 0)
+movingText.ZIndex = 2
+movingText.Parent = screenGui
 
-local loadingBase = "LOADING"
-for i = 0, 3 do
-	wait(0.3)
-	loadingText.Text = loadingBase .. string.rep(".", i)
-end
+TweenService:Create(
+	movingText,
+	TweenInfo.new(4, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true),
+	{Position = UDim2.new(1, 0, 0.15, 0)}
+):Play()
 
--- Barra de carga
+-- Progress bar
 local barFrame = Instance.new("Frame")
 barFrame.Size = UDim2.new(0.6, 0, 0.04, 0)
 barFrame.Position = UDim2.new(0.2, 0, 0.5, 0)
 barFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 barFrame.BorderSizePixel = 0
 barFrame.ZIndex = 1
-barFrame.Parent = background
+barFrame.Parent = screenGui
 
 local bar = Instance.new("Frame")
 bar.Size = UDim2.new(0, 0, 1, 0)
@@ -54,7 +65,7 @@ bar.ClipsDescendants = true
 bar.ZIndex = 2
 bar.Parent = barFrame
 
--- Texto porcentual que avanza dentro de la barra
+-- Floating percentage text
 local percentText = Instance.new("TextLabel")
 percentText.Size = UDim2.new(0.3, 0, 1, 0)
 percentText.BackgroundTransparency = 1
@@ -66,7 +77,7 @@ percentText.Position = UDim2.new(0, 0, 0, 0)
 percentText.ZIndex = 3
 percentText.Parent = bar
 
--- Simulación de carga (5 minutos)
+-- Simulated loading (5 minutes)
 local duration = 300
 local start = tick()
 
@@ -86,7 +97,7 @@ while true do
 	wait(0.1)
 end
 
--- Mensaje final con efecto glitch
+-- Final glitch message
 local finalText = Instance.new("TextLabel")
 finalText.Size = UDim2.new(1, 0, 0.2, 0)
 finalText.Position = UDim2.new(0, 0, 0.75, 0)
@@ -97,7 +108,7 @@ finalText.TextScaled = true
 finalText.Text = "ACCESS GRANTED_"
 finalText.TextTransparency = 1
 finalText.ZIndex = 3
-finalText.Parent = background
+finalText.Parent = screenGui
 
 for i = 1, 3 do
 	finalText.TextTransparency = 0
@@ -109,3 +120,9 @@ finalText.TextTransparency = 0
 
 wait(3)
 screenGui:Destroy()
+
+-- Restore volume and UI
+StarterGui:SetCore("TopbarEnabled", true)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, true)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
+SoundService.Volume = 1
