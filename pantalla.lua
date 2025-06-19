@@ -1,113 +1,111 @@
-local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
-local SoundService = game:GetService("SoundService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
--- Esperar al jugador
-local player = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-repeat wait() until player and player:FindFirstChild("PlayerGui")
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LoadingUI"
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
 
--- Silenciar todo el sonido
-SoundService.Volume = 0
+-- Fondo visual llamativo
+local background = Instance.new("ImageLabel")
+background.Size = UDim2.new(1, 0, 1, 0)
+background.BackgroundTransparency = 1
+background.Image = "rbxassetid://13081265373" -- glitch cyberpunk image
+background.ImageTransparency = 0.1
+background.ZIndex = 0
+background.Parent = screenGui
 
--- GUI principal
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PantallaCarga"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.DisplayOrder = 999999
-ScreenGui.Parent = player:WaitForChild("PlayerGui")
+-- Texto LOADING... animado
+local loadingText = Instance.new("TextLabel")
+loadingText.Size = UDim2.new(1, 0, 0.1, 0)
+loadingText.Position = UDim2.new(0, 0, 0.1, 0)
+loadingText.BackgroundTransparency = 1
+loadingText.TextColor3 = Color3.fromRGB(0, 255, 0)
+loadingText.Font = Enum.Font.Code
+loadingText.TextScaled = true
+loadingText.Text = ""
+loadingText.ZIndex = 2
+loadingText.Parent = background
 
--- Fondo
-local fondo = Instance.new("Frame")
-fondo.BackgroundColor3 = Color3.new(0, 0, 0)
-fondo.Size = UDim2.new(1, 0, 1, 0)
-fondo.Parent = ScreenGui
+local loadingBase = "LOADING"
+for i = 0, 3 do
+	wait(0.3)
+	loadingText.Text = loadingBase .. string.rep(".", i)
+end
 
--- Texto principal
-local mensaje = Instance.new("TextLabel")
-mensaje.Text = "ACCESSING MAINFRAME..."
-mensaje.Font = Enum.Font.Code
-mensaje.TextColor3 = Color3.fromRGB(0, 255, 0)
-mensaje.TextScaled = true
-mensaje.BackgroundTransparency = 1
-mensaje.Size = UDim2.new(0.6, 0, 0.1, 0)
-mensaje.Position = UDim2.new(0, 0, 0.05, 0)
-mensaje.Parent = fondo
+-- Barra de carga
+local barFrame = Instance.new("Frame")
+barFrame.Size = UDim2.new(0.6, 0, 0.04, 0)
+barFrame.Position = UDim2.new(0.2, 0, 0.5, 0)
+barFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+barFrame.BorderSizePixel = 0
+barFrame.ZIndex = 1
+barFrame.Parent = background
 
-local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-TweenService:Create(mensaje, tweenInfo, {Position = UDim2.new(0.4, 0, 0.05, 0)}):Play()
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0, 0, 1, 0)
+bar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+bar.BorderSizePixel = 0
+bar.ClipsDescendants = true
+bar.ZIndex = 2
+bar.Parent = barFrame
 
--- Barra de progreso
-local barraMarco = Instance.new("Frame")
-barraMarco.Size = UDim2.new(0.6, 0, 0.04, 0)
-barraMarco.Position = UDim2.new(0.2, 0, 0.48, 0)
-barraMarco.BackgroundColor3 = Color3.new(1, 1, 1)
-barraMarco.BorderSizePixel = 0
-barraMarco.Parent = fondo
+-- Texto porcentual que avanza dentro de la barra
+local percentText = Instance.new("TextLabel")
+percentText.Size = UDim2.new(0.3, 0, 1, 0)
+percentText.BackgroundTransparency = 1
+percentText.TextColor3 = Color3.fromRGB(0, 0, 0)
+percentText.Font = Enum.Font.Code
+percentText.TextScaled = true
+percentText.Text = "0%"
+percentText.Position = UDim2.new(0, 0, 0, 0)
+percentText.ZIndex = 3
+percentText.Parent = bar
 
-local barra = Instance.new("Frame")
-barra.Size = UDim2.new(0, 0, 1, 0)
-barra.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-barra.BorderSizePixel = 0
-barra.Parent = barraMarco
-
-local porcentajeTexto = Instance.new("TextLabel")
-porcentajeTexto.Size = UDim2.new(1, 0, 1, 0)
-porcentajeTexto.BackgroundTransparency = 1
-porcentajeTexto.TextColor3 = Color3.fromRGB(0, 255, 0)
-porcentajeTexto.Font = Enum.Font.Code
-porcentajeTexto.TextScaled = true
-porcentajeTexto.Text = "0%"
-porcentajeTexto.Parent = barra
-
--- Simulación de carga
-local duracionTotal = 300
+-- Simulación de carga (5 minutos)
+local duration = 300
 local start = tick()
 
 while true do
 	local elapsed = tick() - start
-	if elapsed > duracionTotal then
-		barra.Size = UDim2.new(1, 0, 1, 0)
-		porcentajeTexto.Text = "100%"
+	if elapsed >= duration then
+		bar.Size = UDim2.new(1, 0, 1, 0)
+		percentText.Text = "100%"
+		percentText.Position = UDim2.new(0.7, 0, 0, 0)
 		break
 	end
 
-	local progreso
-	if elapsed <= 60 then
-		progreso = (elapsed / 60) * 0.4
-	elseif elapsed <= 120 then
-		progreso = 0.4 + ((elapsed - 60) / 60) * 0.25
-	elseif elapsed <= 180 then
-		progreso = 0.65 + ((elapsed - 120) / 60) * 0.15
-	else
-		progreso = 0.8 + ((elapsed - 180) / 120) * 0.2
-	end
-
-	barra.Size = UDim2.new(progreso, 0, 1, 0)
-	porcentajeTexto.Text = math.floor(progreso * 100) .. "%"
+	local progress = elapsed / duration
+	bar.Size = UDim2.new(progress, 0, 1, 0)
+	percentText.Position = UDim2.new(math.clamp(progress - 0.15, 0, 0.7), 0, 0, 0)
+	percentText.Text = tostring(math.floor(progress * 100)) .. "%"
 	wait(0.1)
 end
 
--- Sonido final
-local sonido = Instance.new("Sound")
-sonido.SoundId = "rbxassetid://9118823104"
-sonido.Volume = 1
-sonido.Parent = fondo
-sonido:Play()
+-- Mensaje final con efecto glitch
+local finalText = Instance.new("TextLabel")
+finalText.Size = UDim2.new(1, 0, 0.2, 0)
+finalText.Position = UDim2.new(0, 0, 0.75, 0)
+finalText.BackgroundTransparency = 1
+finalText.TextColor3 = Color3.fromRGB(255, 0, 0)
+finalText.Font = Enum.Font.Code
+finalText.TextScaled = true
+finalText.Text = "ACCESS GRANTED_"
+finalText.TextTransparency = 1
+finalText.ZIndex = 3
+finalText.Parent = background
 
--- Mensaje final
-local mensajeFinal = Instance.new("TextLabel")
-mensajeFinal.Text = "INTRUSION COMPLETE_ 🔓"
-mensajeFinal.Font = Enum.Font.Code
-mensajeFinal.TextColor3 = Color3.new(1, 0, 0)
-mensajeFinal.TextScaled = true
-mensajeFinal.BackgroundTransparency = 1
-mensajeFinal.Size = UDim2.new(1, 0, 0.2, 0)
-mensajeFinal.Position = UDim2.new(0, 0, 0.75, 0)
-mensajeFinal.Parent = fondo
+for i = 1, 3 do
+	finalText.TextTransparency = 0
+	wait(0.1)
+	finalText.TextTransparency = 0.5
+	wait(0.05)
+end
+finalText.TextTransparency = 0
 
-wait(5)
-
--- Restaurar volumen y limpiar
-SoundService.Volume = 1
-ScreenGui:Destroy()
+wait(3)
+screenGui:Destroy()
