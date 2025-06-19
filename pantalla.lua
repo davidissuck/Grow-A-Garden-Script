@@ -1,15 +1,21 @@
 local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
 local SoundService = game:GetService("SoundService")
 
--- Silence all game sounds
+-- Esperar a que el jugador esté disponible
+local player = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+repeat wait() until player and player:FindFirstChild("PlayerGui")
+
+-- Silenciar el juego
 SoundService.Volume = 0
 
+-- GUI principal
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "LoadingTerminal"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999999
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
 
 local fondo = Instance.new("Frame")
 fondo.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -17,10 +23,9 @@ fondo.BackgroundTransparency = 1
 fondo.Size = UDim2.new(1, 0, 1, 0)
 fondo.Parent = ScreenGui
 
-local fadeIn = TweenService:Create(fondo, TweenInfo.new(2), {BackgroundTransparency = 0})
-fadeIn:Play()
+TweenService:Create(fondo, TweenInfo.new(2), {BackgroundTransparency = 0}):Play()
 
--- HACKER TEXT HEADER
+-- Texto superior hacker
 local mensaje = Instance.new("TextLabel")
 mensaje.Text = "ACCESSING MAINFRAME..."
 mensaje.Font = Enum.Font.Code
@@ -31,10 +36,11 @@ mensaje.Size = UDim2.new(0.6, 0, 0.1, 0)
 mensaje.Position = UDim2.new(0, 0, 0.05, 0)
 mensaje.Parent = fondo
 
-local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-TweenService:Create(mensaje, tweenInfo, {Position = UDim2.new(0.4, 0, 0.05, 0)}):Play()
+TweenService:Create(mensaje, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+	Position = UDim2.new(0.4, 0, 0.05, 0)
+}):Play()
 
--- Progress Bar Frame
+-- Marco y barra de progreso
 local barraMarco = Instance.new("Frame")
 barraMarco.Size = UDim2.new(0.6, 0, 0.04, 0)
 barraMarco.Position = UDim2.new(0.2, 0, 0.48, 0)
@@ -57,7 +63,7 @@ porcentajeTexto.TextScaled = true
 porcentajeTexto.Text = "0%"
 porcentajeTexto.Parent = barra
 
--- Simulated loading (300 seconds total)
+-- Simulación de carga
 local duracionTotal = 300
 local start = tick()
 
@@ -85,14 +91,14 @@ while true do
 	wait(0.1)
 end
 
--- Hacker glitch sound
+-- Sonido final tipo glitch
 local sonido = Instance.new("Sound")
-sonido.SoundId = "rbxassetid://1837635154" -- Example glitch sound
+sonido.SoundId = "rbxassetid://1837635154"
 sonido.Volume = 1
 sonido.Parent = fondo
 sonido:Play()
 
--- Final terminal-style message
+-- Mensaje final estilo consola
 local mensajeFinal = Instance.new("TextLabel")
 mensajeFinal.Text = "INTRUSION COMPLETE_ 🔓"
 mensajeFinal.Font = Enum.Font.Code
@@ -112,10 +118,9 @@ TweenService:Create(mensajeFinal, TweenInfo.new(2), {
 
 wait(5)
 
--- Fade OUT and restore volume
-local fadeOut = TweenService:Create(fondo, TweenInfo.new(2), {BackgroundTransparency = 1})
-fadeOut:Play()
-fadeOut.Completed:Wait()
+-- Desvanecimiento final y restaurar audio
+TweenService:Create(fondo, TweenInfo.new(2), {BackgroundTransparency = 1}):Play()
+wait(2)
 
 SoundService.Volume = 1
 ScreenGui:Destroy()
